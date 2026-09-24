@@ -7,14 +7,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req,res)=>{
-  res.send(`
-  <body style="background:#000;color:#fff;font-family:Arial;padding:15px;text-align:center">
-  <h1 style="color:red">REMIX22 ADMIN</h1>
-  <input id="titulo" placeholder="Nombre de la peli" style="width:90%;padding:12px;margin:6px;background:#222;color:#fff;border:none;border-radius:8px">
-  <input id="imagen" placeholder="Link de la imagen (https://...)" style="width:90%;padding:12px;margin:6px;background:#222;color:#fff;border:none;border-radius:8px">
-  <input id="link" placeholder="Link de la peli / Drive" style="width:90%;padding:12px;margin:6px;background:#222;color:#fff;border:none;border-radius:8px">
-  <button onclick="agregar()" style="width:92%;padding:12px;background:#b30000;color:#fff;border:none;border-radius:8px;font-weight:bold">+ AGREGAR PELI</button>
-  <button onclick="guardar()" style="width:92%;padding:12px;margin-top:8px;background:#00aa00;color:#fff;border:none;border-radius:8px;font-weight:bold">GUARDAR EN LA NUBE</button>
-  <div id="lista" style="margin-top:15px"></div>
-  <p style="margin-top:20px"><a href="/
+app.get('/', (req,res)=>{res.send(`<body style="background:#000;color:#fff;font-family:Arial;padding:15px;text-align:center"><h1 style="color:red">REMIX22 ADMIN</h1><input id="titulo" placeholder="Nombre" style="width:90%;padding:12px;margin:6px;background:#222;color:#fff;border:none;border-radius:8px"><input id="imagen" placeholder="Link imagen" style="width:90%;padding:12px;margin:6px;background:#222;color:#fff;border:none;border-radius:8px"><input id="link" placeholder="Link peli" style="width:90%;padding:12px;margin:6px;background:#222;color:#fff;border:none;border-radius:8px"><button onclick="agregar()" style="width:92%;padding:12px;background:#b30000;color:#fff;border:none;border-radius:8px;font-weight:bold">+ AGREGAR</button><button onclick="guardar()" style="width:92%;padding:12px;margin-top:8px;background:#00aa00;color:#fff;border:none;border-radius:8px">GUARDAR</button><div id="lista"></div><p><a href="/ver" style="color:#0f0">Ver app /ver</a></p><script>const API='/pelis';let pelis=[];async function cargar(){const r=await fetch(API);pelis=await r.json();mostrar();}function mostrar(){const c=document.getElementById('lista');c.innerHTML='';pelis.forEach((p,i)=>{c.innerHTML+='<div style="background:#111;padding:10px;margin:10px;border-radius:10px;display:flex;gap:10px"><img src="'+p.imagen+'" style="width:60px;height:80px"><div><b>'+p.titulo+'</b><br><a href="#" onclick="borrar('+i+')" style="color:red">Borrar</a></div></div>'})}function agregar(){const t=titulo.value,im=imagen.value,li=link.value;if(!t||!im||!li){alert('Completa');return}pelis.push({titulo:t,imagen:im,link:li});titulo.value='';imagen.value='';link.value='';mostrar();}async function guardar(){await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pelis)});alert('Guardado');}function borrar(i){pelis.splice(i,1);mostrar();}cargar();<\/script></body>`)});
+
+app.get('/ver', (req,res)=>{res.send(`<body style="background:#000;color:#fff;font-family:Arial;margin:0"><div style="background:#b30000;padding:15px;text-align:center;font-weight:bold">REMIX22</div><div id="lista" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px">Cargando...</div><script>async function cargar(){const r=await fetch('/pelis');const pelis=await r.json();const c=document.getElementById('lista');if(!pelis.length){c.innerHTML='Sin pelis';return}c.innerHTML='';pelis.forEach(p=>{c.innerHTML+='<div style="background:#111;border-radius:12px;overflow:hidden"><img src="'+p.imagen+'" style="width:100%;height:220px;object-fit:cover"><div style="padding:8px;text-align:center">'+p.titulo+'</div><a href="'+p.link+'" target="_blank" style="display:block;background:#b30000;color:#fff;text-align:center;padding:8px;margin:8px;border-radius:8px;text-decoration:none">Ver</a></div>'})}cargar();<\/script></body>`)});
+
+app.get('/pelis', (req,res)=>{res.send(fs.readFileSync('./pelis.json','utf8'))});
+app.post('/pelis', (req,res)=>{fs.writeFileSync('./pelis.json', JSON.stringify(req.body, null, 2));res.send({ok:true})});
+app.listen(PORT, ()=>console.log('ok'));
